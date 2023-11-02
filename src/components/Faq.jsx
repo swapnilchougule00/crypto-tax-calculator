@@ -1,21 +1,9 @@
 import React from "react";
 
 function Faq() {
-  const IncomeIntervals = [
-    { id: 0, data: "$0 - $18,200" },
-    { id: 1, data: "$18,201 - $45,000" },
-    { id: 2, data: "$45,001 - $120,000" },
-    { id: 3, data: "$120,001 - $180,000" },
-    { id: 4, data: "$180,001+" },
-  ];
+  
 
-  const taxRates = [
-    ["0%"],
-    ["Nil + 19% of the excess over $18,200"],
-    ["$5,092 + 32.5% of the excess over $45,000"],
-    ["$29,467 + 37% of the excess over $120,000"],
-    ["$51,667 + 45% of the excess over $180,000"],
-  ];
+
 
   const FAQs = [
     {

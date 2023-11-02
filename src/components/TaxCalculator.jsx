@@ -1,9 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import RightTemplate from "./RightTemplate";
 import Faq from "./Faq";
 
 function calculator() {
   const [term, setTerm] = useState(0);
+  const [income, setIncome] = useState(0);
+  const [purchasePrice, setPurchasePrice] = useState();
+  const [salePrice, setSalePrice] = useState();
+  const [expansePrice, setExpensePrice] = useState();
+  const [capitalGain, setCapitalGain] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [netCapitalGains, setNetCapitalGains] = useState(0);
+  const [taxToPay, setTaxToPay] = useState(0);
+
+  const annualIncome = [
+    { id: 0, data: "$0 - $18,200" },
+    { id: 1, data: "$18,201 - $45,000" },
+    { id: 2, data: "$45,001 - $120,000" },
+    { id: 3, data: "$120,001 - $180,000" },
+    { id: 4, data: "$180,001+" },
+  ];
+  const tax = [0, 19, 32.5, 37, 45];
+
+  const taxRates = [
+    "0%",
+    "Nil + 19% of the excess over $18,200",
+    "$5,092 + 32.5% of the excess over $45,000",
+    "$29,467 + 37% of the excess over $120,000",
+    "$51,667 + 45% of the excess over $180,000",
+  ];
+
+  const getNumericValue = (formattedValue) => {
+    return parseFloat(formattedValue);
+  };
+
+  function calculate() {
+    if (purchasePrice !== "" && salePrice !== "" && expansePrice !== "") {
+      let saleprice = getNumericValue(salePrice);
+      let purchaseprice = getNumericValue(purchasePrice);
+      let expenseprice = getNumericValue(expansePrice);
+      setCapitalGain(saleprice - purchaseprice - expenseprice);
+      if (capitalGain > 0) {
+        setDiscount(capitalGain / 2);
+      } else {
+        setDiscount(0);
+      }
+
+      if (term === 1) {
+        setNetCapitalGains(capitalGain - discount);
+      } else {
+        setNetCapitalGains(capitalGain);
+      }
+    }
+  }
+
+  function calculateTax() {
+    let taxPay = (tax[income] / 100) * netCapitalGains;
+    setTaxToPay(taxPay);
+  }
+
+  useEffect(() => {
+    calculate();
+    calculateTax();
+  }, [
+    term,
+    salePrice,
+    purchasePrice,
+    expansePrice,
+    income,
+    discount,
+    capitalGain,
+    netCapitalGains,
+    taxToPay,
+  ]);
 
   return (
     <div className="w-full  space-y-6  p-10">
@@ -28,11 +97,11 @@ function calculator() {
               <div className="md:flex items-center space-y-2 md:space-y-0 md:w-[40%] gap-2">
                 <p className="text-sm">Country</p>
                 <select
-                  className="border-none bg-[#EFF2F5] px-4 py-2 outline-none rounded-lg w-full"
+                  className="border-none relative bg-[#EFF2F5] px-4 py-2 outline-none rounded-lg w-full"
                   name="years"
                   id="years"
                 >
-                  <option value="23-24">Australia</option>
+                  <option value="aus">Australia</option>
                 </select>
               </div>
             </div>
@@ -45,6 +114,8 @@ function calculator() {
                   <input
                     type="text"
                     className="bg-[#EFF2F5] border-none absolute outline-none px-6 py-2 rounded-lg w-full"
+                    value={purchasePrice}
+                    onChange={(e) => setPurchasePrice(e.target.value)}
                   />
                   <p className="absolute left-2 top-2">$</p>
                 </div>
@@ -55,6 +126,8 @@ function calculator() {
                   <input
                     type="text"
                     className="bg-[#EFF2F5] border-none absolute outline-none px-6 py-2 rounded-lg w-full"
+                    value={salePrice}
+                    onChange={(e) => setSalePrice(e.target.value)}
                   />
                   <p className="absolute left-2 top-2">$</p>
                 </div>
@@ -68,6 +141,8 @@ function calculator() {
                   <input
                     type="text"
                     className="bg-[#EFF2F5] border-none absolute outline-none px-6 py-2 rounded-lg w-full"
+                    value={expansePrice}
+                    onChange={(e) => setExpensePrice(e.target.value)}
                   />
                   <p className="absolute left-2 top-2">$</p>
                 </div>
@@ -112,15 +187,19 @@ function calculator() {
                   className="border-none bg-[#EFF2F5] px-4 outline-none py-3 rounded-lg w-full"
                   name="years"
                   id="years"
+                  value={income}
+                  onChange={(e) => setIncome(e.target.value)}
                 >
-                  6<option value="23-24">$45,000 - $120,000</option>
+                  {annualIncome.map((data) => (
+                    <option key={data.id} value={data.id}>
+                      {data.data}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="items-center space-y-2 md:w-[40%]  font-inter">
                 <p className="text-sm mt-6">Tax Rate</p>
-                <p className="text-xs">
-                  $ 5,902 + 32.5% of excess over $45,001{" "}
-                </p>
+                <p className="text-xs">{taxRates[income]}</p>
               </div>
             </div>
 
@@ -129,20 +208,18 @@ function calculator() {
                 <div className="items-center space-y-2 md:w-[40%]  font-inter">
                   <p className="text-sm">Capital gains amount</p>
                   <div className="relative">
-                    <input
-                      type="text"
-                      className="bg-[#EFF2F5] border-none absolute outline-none px-6 py-2 rounded-lg w-full"
-                    />
+                    <h1 className="bg-[#EFF2F5] border-none absolute outline-none px-6 py-2 rounded-lg w-full">
+                      {isNaN(capitalGain) ? 0 : capitalGain}
+                    </h1>
                     <p className="absolute left-2 top-2">$</p>
                   </div>
                 </div>
-                <div className="items-center space-y-2 md:w-[40%]  font-inter">
+                <div className="items-center space-y-2  md:w-[40%] md:mt-0 mt-16 font-inter">
                   <p className="text-sm">Discount for long term gains</p>
                   <div className="relative">
-                    <input
-                      type="text"
-                      className="bg-[#EFF2F5] border-none absolute outline-none px-6 py-2 rounded-lg w-full"
-                    />
+                    <h1 className="bg-[#EFF2F5] border-none absolute outline-none px-6 py-2 rounded-lg w-full">
+                      {discount}
+                    </h1>
                     <p className="absolute left-2 top-2">$</p>
                   </div>
                 </div>
@@ -152,12 +229,16 @@ function calculator() {
             <div className="w-[100%] md:flex justify-around mb-4 mt-4">
               <div className=" space-y-2 flex flex-col justify-center items-center md:w-[40%] bg-[#EFF2F5] rounded-lg p-3 font-inter">
                 <p className="text-sm">Net Capital gains tax amount</p>
-                <p className="text-[#0FBA83] font-bold text-2xl">$ 0</p>
+                <p className="text-[#0FBA83] font-bold text-2xl">
+                  $ {isNaN(netCapitalGains) ? 0 : netCapitalGains}
+                </p>
               </div>
 
               <div className=" space-y-2 flex flex-col justify-center md:mt-0 mt-4 items-center md:w-[40%] bg-[#EFF2F5] rounded-lg p-3 font-inter">
                 <p className="text-sm">The tax you need to pay*</p>
-                <p className="text-[#0141CF] font-bold text-2xl">$ 0</p>
+                <p className="text-[#0141CF] font-bold text-2xl">
+                  $ {isNaN(taxToPay) ? 0 : taxToPay}
+                </p>
               </div>
             </div>
           </div>
