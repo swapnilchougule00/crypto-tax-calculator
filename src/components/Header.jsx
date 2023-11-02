@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '../assets/Koinxlogo.svg'
+import logo from '../assets/Koinxlogo.jpg'
 function Header() {
   return (
     <div className='w-full p-4 px-10 flex items-center justify-between h-16 shadow-sm bg-white'>
